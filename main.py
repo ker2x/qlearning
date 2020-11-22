@@ -4,17 +4,11 @@ import torch as T
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torch.autograd.profiler as profiler
-
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 
-import scipy
 
-print("Is PyToch CUDA available : ", T.cuda.is_available())
-x = T.rand(5, 3)
-print("Random Pytorch test : ", x)
+print("Is PyTorch CUDA available : ", T.cuda.is_available())
 
 
 class DeepQNetwork(nn.Module):
@@ -33,14 +27,13 @@ class DeepQNetwork(nn.Module):
 
         self.loss = nn.MSELoss()
         self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
-        #        self.device = T.device('cpu')
         self.to(self.device)
 
     def forward(self, state):
         x = F.relu(self.fc1(state))
         x = F.relu(self.fc2(x))
-        action = self.fc3(x)
-        return action
+        _action = self.fc3(x)
+        return _action
 
 
 class Agent():
@@ -82,10 +75,10 @@ class Agent():
         if np.random.random() > self.epsilon:
             state = T.tensor([observation]).float().to(self.Q_eval.device)
             actions = self.Q_eval.forward(state)
-            action = T.argmax(actions).item()
+            _action = T.argmax(actions).item()
         else:
-            action = np.random.choice(self.action_space)
-        return action
+            _action = np.random.choice(self.action_space)
+        return _action
 
     def learn(self):
         if self.mem_cntr < self.batch_size:
